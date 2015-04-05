@@ -3,12 +3,27 @@ package com.tedneward.example;
 import java.beans.*;
 import java.util.*;
 
-public class Person {
+public class Person implements Comparable<Person> {
+  private static int personCount = 0;
+
   private int age;
   private String name;
   private double salary;
   private String ssn;
   private boolean propertyChangeFired = false;
+
+  public static List<Person> getNewardFamily() {
+    List<Person> family = new ArrayList<Person>();
+    family.add(new Person("Ted", 41, 250000));
+    family.add(new Person("Michael", 22, 10000));
+    family.add(new Person("Matthew", 15, 0));
+    family.add(new Person("Charlotte", 43, 150000));
+    return family;
+  }
+
+  public static int count() {
+    return personCount;
+  }
   
   public Person() {
     this("", 0, 0.0d);
@@ -18,18 +33,37 @@ public class Person {
     name = n;
     age = a;
     salary = s;
+    ++personCount;
   }
 
   public int getAge() {
     return age;
   }
+
+  public void setAge(int value) {
+    if (value < 0) {
+      throw new IllegalArgumentException();
+    }
+    age = value;
+  }
   
   public String getName() {
     return name;
   }
+
+  public void setName(String value) {
+    if (value == null) {
+      throw new IllegalArgumentException();
+    }
+    name = value;
+  }
   
   public double getSalary() {
     return salary;
+  }
+
+  public void setSalary(double value) {
+    salary = value;
   }
   
   public String getSSN() {
@@ -58,12 +92,23 @@ public class Person {
     return age + 10;
   }
   
-  public boolean equals(Person other) {
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof Person)) {
+      return false;
+    }
+    Person p = (Person)other;
     return (this.name.equals(p.name) && this.age == p.age);
   }
 
-  public String tostring() {
-    return "{{FIXME}}";
+  public String toString() {
+    return String.format("[Person name:%s age:%d salary:%.2f]",
+                         name, age, salary);
+  }
+
+  @Override
+  public int compareTo(Person other) {
+    return (int)other.salary - (int)salary;
   }
 
   // PropertyChangeListener support; you shouldn't need to change any of
@@ -75,5 +120,12 @@ public class Person {
   }
   public void removePropertyChangeListener(PropertyChangeListener listener) {
       this.pcs.removePropertyChangeListener(listener);
+  }
+
+  public static class AgeComparator implements Comparator<Person> {
+    @Override
+    public int compare(Person p1, Person p2) {
+      return p1.getAge() - p2.getAge();
+    }
   }
 }
